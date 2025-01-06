@@ -1,5 +1,6 @@
 import { Loader2 } from "lucide-react";
 import { useEffect, useRef, useState } from "react";
+import { z } from "zod";
 import { Button } from "~/components/ui/button";
 import { Input } from "~/components/ui/input";
 import { Label } from "~/components/ui/label";
@@ -7,8 +8,6 @@ import { useContext } from "~/hooks/useContext";
 
 export default function Page() {
 	const { pyodide } = useContext();
-	const [from, setFrom] = useState<number | undefined>(undefined);
-	const [to, setTo] = useState<number | undefined>(undefined);
 	const [loading, setLoading] = useState(true);
 	const [status, setStatus] = useState("");
 	const fileInputRef = useRef<HTMLInputElement>(null);
@@ -24,15 +23,37 @@ export default function Page() {
 		load();
 	}, [pyodide]);
 
-	const handleSubmit = async (e: React.FormEvent) => {
+	const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
 		e.preventDefault();
 		if (!pyodide) return;
+		const formData = new FormData(e.currentTarget);
 
+		const form = z.object({
+			from: z.coerce.number().int().min(1),
+			to: z
+				.string()
+				.refine((value) => {
+					if (value === "") return true;
+					return isFinite(Number(value)) && Number.isInteger(Number(value));
+				}, "to tidak sah")
+				.transform<number | null>((value) => {
+					if (value === "") return null;
+					return Number(value);
+				}),
+		}).safeParse({
+			from: formData.get("from"),
+			to: formData.get("to")
+		})
 		if (!fileInputRef.current?.files?.length) {
 			setStatus("Please select a PDF file");
 			return;
 		}
-
+		if(!form.success) {
+			const error = form.error.flatten().formErrors.join("; ");
+			setStatus(error);
+			return;
+		}
+		const {from, to} = form.data
 		if (!from) {
 			setStatus("Please enter correct page");
 			return;
@@ -110,10 +131,7 @@ export default function Page() {
 						<Label className="block">From:</Label>
 						<Input
 							type="number"
-							value={from}
-							onChange={(e) =>
-								setFrom(e.currentTarget.value !== "" ? Number(e.currentTarget.value) : undefined)
-							}
+							name="from"
 							className="block w-full max-w-[60px] border rounded-md p-2"
 						/>
 					</div>
@@ -121,15 +139,12 @@ export default function Page() {
 						<Label className="block">To:</Label>
 						<Input
 							type="text"
-							value={to}
-							onChange={(e) =>
-								setTo(e.currentTarget.value !== "" ? Number(e.currentTarget.value) : undefined)
-							}
+							name="to"
 							className="block w-full max-w-[60px] border rounded-md p-2"
 						/>
 					</div>
 				</div>
-				<p>To page can be empty. Meaning split only one page.</p>
+				<p><em className="font-bold">To</em> page can be empty. Meaning split only one page.</p>
 				<Button
 					type="submit"
 					className="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded"

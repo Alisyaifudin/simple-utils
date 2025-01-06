@@ -18,12 +18,20 @@ export const links: LinksFunction = () => [
 	},
 ];
 
+declare global {
+  interface Window {
+    pyodide: PyodideInterface;
+		loadPyodide: typeof loadPyodide
+  }
+}
+
 export function Layout({ children }: { children: React.ReactNode }) {
 	return (
 		<html lang="en">
 			<head>
 				<meta charSet="utf-8" />
 				<meta name="viewport" content="width=device-width, initial-scale=1" />
+				<script src="https://cdn.jsdelivr.net/pyodide/v0.27.0/full/pyodide.js"></script>
 				<Meta />
 				<Links />
 			</head>
@@ -46,7 +54,7 @@ export default function App() {
 	const [pyodide, setPyodide] = useState<PyodideInterface | null>(null);
 	useEffect(() => {
 		async function load() {
-			const pyodide = await loadPyodide({
+			const pyodide = await window.loadPyodide({
 				indexURL: "https://cdn.jsdelivr.net/pyodide/v0.27.0/full/",
 			});
 
