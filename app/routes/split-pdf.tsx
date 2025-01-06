@@ -138,7 +138,7 @@ export default function Page() {
 					<div className="flex items-center gap-2">
 						<Label className="block">To:</Label>
 						<Input
-							type="text"
+							type="number"
 							name="to"
 							className="block w-full max-w-[60px] border rounded-md p-2"
 						/>
