@@ -1,4 +1,4 @@
-import { Loader2 } from "lucide-react";
+import { Loader, Loader2 } from "lucide-react";
 import { useEffect, useRef, useState } from "react";
 import { z } from "zod";
 import { Button } from "~/components/ui/button";
@@ -28,32 +28,34 @@ export default function Page() {
 		if (!pyodide) return;
 		const formData = new FormData(e.currentTarget);
 
-		const form = z.object({
-			from: z.coerce.number().int().min(1),
-			to: z
-				.string()
-				.refine((value) => {
-					if (value === "") return true;
-					return isFinite(Number(value)) && Number.isInteger(Number(value));
-				}, "to tidak sah")
-				.transform<number | null>((value) => {
-					if (value === "") return null;
-					return Number(value);
-				}),
-		}).safeParse({
-			from: formData.get("from"),
-			to: formData.get("to")
-		})
+		const form = z
+			.object({
+				from: z.coerce.number().int().min(1),
+				to: z
+					.string()
+					.refine((value) => {
+						if (value === "") return true;
+						return isFinite(Number(value)) && Number.isInteger(Number(value));
+					}, "to tidak sah")
+					.transform<number | null>((value) => {
+						if (value === "") return null;
+						return Number(value);
+					}),
+			})
+			.safeParse({
+				from: formData.get("from"),
+				to: formData.get("to"),
+			});
 		if (!fileInputRef.current?.files?.length) {
 			setStatus("Please select a PDF file");
 			return;
 		}
-		if(!form.success) {
+		if (!form.success) {
 			const error = form.error.flatten().formErrors.join("; ");
 			setStatus(error);
 			return;
 		}
-		const {from, to} = form.data
+		const { from, to } = form.data;
 		if (!from) {
 			setStatus("Please enter correct page");
 			return;
@@ -111,7 +113,7 @@ export default function Page() {
 		);
 
 	return (
-		<div className="p-4 max-w-4xl mx-auto">
+		<main className="p-4 max-w-4xl mx-auto flex flex-col gap-4">
 			<h1 className="text-2xl font-bold mb-4">PDF Splitter</h1>
 			<form onSubmit={handleSubmit} className="space-y-4">
 				<div>
@@ -132,7 +134,7 @@ export default function Page() {
 						<Input
 							type="number"
 							name="from"
-							className="block w-full max-w-[60px] border rounded-md p-2"
+							className="block w-full max-w-[70px] border rounded-md p-2"
 						/>
 					</div>
 					<div className="flex items-center gap-2">
@@ -140,11 +142,13 @@ export default function Page() {
 						<Input
 							type="number"
 							name="to"
-							className="block w-full max-w-[60px] border rounded-md p-2"
+							className="block w-full max-w-[70px] border rounded-md p-2"
 						/>
 					</div>
 				</div>
-				<p><em className="font-bold">To</em> page can be empty. Meaning split only one page.</p>
+				<p>
+					<em className="font-bold">To</em> page can be empty. Meaning split only one page.
+				</p>
 				<Button
 					type="submit"
 					className="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded"
@@ -153,7 +157,11 @@ export default function Page() {
 				</Button>
 			</form>
 
-			{status && <div className="mt-4 p-4 border rounded-md">{status}</div>}
-		</div>
+			{status && (
+				<div className="p-4 border rounded-md flex items-center gap-2">
+					<p>{status}</p> {status === "Processing..." ? <Loader className="animate-spin" /> : null}
+				</div>
+			)}
+		</main>
 	);
 }
