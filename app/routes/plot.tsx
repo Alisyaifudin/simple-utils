@@ -2,14 +2,14 @@ import { MetaFunction } from "@remix-run/react";
 import { Loader } from "lucide-react";
 import { useEffect, useState } from "react";
 import { Button } from "~/components/ui/button";
-import { useContext } from "~/hooks/useContext";
+import { usePythonContext } from "~/hooks/usePythonContext";
 
 export const meta: MetaFunction = () => {
 	return [{ title: "Simple utils | Plot" }];
 };
 
 export default function Page() {
-	const { pyodide } = useContext();
+	const { pyodide } = usePythonContext();
 	const [plotData, setPlotData] = useState<string>("");
 	const [loading, setLoading] = useState(true);
 
@@ -51,7 +51,11 @@ export default function Page() {
 			>
 				Generate New Plot
 			</Button>
-			{loading ? <p>Loading... <Loader className="animate-spin" /></p> : null}
+			{loading ? (
+				<p>
+					Loading... <Loader className="animate-spin" />
+				</p>
+			) : null}
 
 			{plotData && (
 				<div className="border p-4 mt-4">

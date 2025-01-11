@@ -5,14 +5,14 @@ import { z } from "zod";
 import { Button } from "~/components/ui/button";
 import { Input } from "~/components/ui/input";
 import { Label } from "~/components/ui/label";
-import { useContext } from "~/hooks/useContext";
+import { usePythonContext } from "~/hooks/usePythonContext";
 
 export const meta: MetaFunction = () => {
 	return [{ title: "Simple utils | Split-PDF" }];
 };
 
 export default function Page() {
-	const { pyodide } = useContext();
+	const { pyodide } = usePythonContext();
 	const [loading, setLoading] = useState(true);
 	const [status, setStatus] = useState("");
 	const fileInputRef = useRef<HTMLInputElement>(null);
