@@ -2,10 +2,14 @@ import React, { SVGProps, useRef, useState } from "react";
 import { Input } from "~/components/ui/input";
 import { download } from "~/lib/download-imperative";
 import { Label } from "~/components/ui/label";
-import { useSearchParams } from "@remix-run/react";
+import { MetaFunction, useSearchParams } from "@remix-run/react";
 import { z } from "zod";
 import { Button } from "~/components/ui/button";
 import { Loader2 } from "lucide-react";
+
+export const meta: MetaFunction = () => {
+	return [{ title: "Simple utils | Image Converter" }];
+};
 
 const EXTENSIONS = ["image/jpeg", "image/png", "image/webp"] as const;
 
