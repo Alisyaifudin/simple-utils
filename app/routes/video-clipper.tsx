@@ -6,6 +6,7 @@ import { MetaFunction } from "@remix-run/react";
 import { cn } from "~/lib/utils";
 import { z } from "zod";
 import { useFFmpegContext } from "~/hooks/useFFmpegContext";
+import { download } from "~/lib/download-imperative";
 
 export const meta: MetaFunction = () => {
 	return [{ title: "Simple utils | Clip Video" }];
@@ -76,13 +77,8 @@ export default function Page() {
 	};
 	const handleDownload = () => {
 		if (!videoSrc || !file) return;
-		const link = document.createElement("a");
-		link.href = videoSrc;
-		link.download = "clipped-" + file.name;
-		link.style.display = "none";
-		document.body.appendChild(link);
-		link.click();
-		document.body.removeChild(link);
+		const name = "clipped-" + file.name;
+		download(videoSrc, name);
 	};
 	const currentSrc = !file ? "" : URL.createObjectURL(file);
 	return (

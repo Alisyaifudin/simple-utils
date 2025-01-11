@@ -4,6 +4,7 @@ import {
 } from "@remix-run/dev";
 import { defineConfig } from "vite";
 import tsconfigPaths from "vite-tsconfig-paths";
+import { nodePolyfills } from "vite-plugin-node-polyfills";
 
 declare module "@remix-run/cloudflare" {
 	interface Future {
@@ -12,13 +13,13 @@ declare module "@remix-run/cloudflare" {
 }
 
 export default defineConfig({
-	optimizeDeps: { exclude: ["pyodide", "@ffmpeg/ffmpeg", "@ffmpeg/util"] },
+	optimizeDeps: { exclude: ["pyodide", "@ffmpeg/ffmpeg", "@ffmpeg/util", "@jimp/wasm-webp"] },
 	server: {
-    headers: {
-      "Cross-Origin-Opener-Policy": "same-origin",
-      "Cross-Origin-Embedder-Policy": "require-corp",
-    },
-  },
+		headers: {
+			"Cross-Origin-Opener-Policy": "same-origin",
+			"Cross-Origin-Embedder-Policy": "require-corp",
+		},
+	},
 	plugins: [
 		remixCloudflareDevProxy(),
 		remix({
@@ -31,6 +32,7 @@ export default defineConfig({
 				v3_routeConfig: true,
 			},
 		}),
-		tsconfigPaths()
+		tsconfigPaths(),
+		nodePolyfills({ include: ["buffer"] }),
 	],
 });
