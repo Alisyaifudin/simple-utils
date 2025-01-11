@@ -13,8 +13,8 @@ export const meta: MetaFunction = () => {
 };
 
 export default function Page() {
-	const videoRef = useRef<HTMLVideoElement | null>(null);
-	const { loaded, ffmpeg } = useFFmpegContext();
+	const [videoSrc, setVideoSrc] = useState("");
+	const { ffmpeg } = useFFmpegContext();
 	const [errorMsg, setErrorMsg] = useState("");
 	const [file, setFile] = useState<null | File>(null);
 	const messageRef = useRef<HTMLParagraphElement | null>(null);
@@ -24,16 +24,15 @@ export default function Page() {
 		const name = file.name;
 		const extension = name.split(".").at(-1);
 		if (!extension) return;
+		// const ffmpeg = ffmpegRef.current;
 		const inputFileData = await file.arrayBuffer();
-		const inputName = "input." + extension;
-		const outputName = "output." + extension;
+		const inputName = "input.mp4";
+		const outputName = "output.mp4";
 		await ffmpeg.writeFile(inputName, new Uint8Array(inputFileData));
-		await ffmpeg.exec(["-i", inputName, "-ss", start, "-to", end, "output." + outputName]);
-		const fileData = await ffmpeg.readFile("output." + extension);
+		await ffmpeg.exec(["-i", inputName, "-ss", start, "-to", end, outputName]);
+		const fileData = await ffmpeg.readFile(outputName);
 		const data = new Uint8Array(fileData as ArrayBuffer);
-		if (videoRef.current) {
-			videoRef.current.src = URL.createObjectURL(new Blob([data.buffer], { type: "video/mp4" }));
-		}
+		setVideoSrc(URL.createObjectURL(new Blob([data.buffer], { type: "video/mp4" })));
 	};
 
 	const handleInput = (e: React.FormEvent<HTMLInputElement>) => {
@@ -42,10 +41,12 @@ export default function Page() {
 			setFile(null);
 			return;
 		}
+		setVideoSrc("");
 		setFile(files[0]);
 	};
 	const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
 		e.preventDefault();
+		// const ffmpeg = ffmpegRef.current;
 		ffmpeg.on("log", ({ message }) => {
 			if (messageRef.current) messageRef.current.innerText = message;
 			console.log(message);
@@ -74,8 +75,18 @@ export default function Page() {
 		setErrorMsg("");
 		await transcode(start, end);
 	};
+	const handleDownload = () => {
+		if (!videoSrc || !file) return;
+		const link = document.createElement("a");
+		link.href = videoSrc;
+		link.download = "clipped-" + file.name;
+		link.style.display = "none";
+		document.body.appendChild(link);
+		link.click();
+		document.body.removeChild(link);
+	};
 	const currentSrc = !file ? "" : URL.createObjectURL(file);
-	return loaded ? (
+	return (
 		<main className="flex flex-col gap-2 items-center w-full max-w-4xl mx-auto">
 			<h1 className="self-start text-2xl font-bold">Clip Video</h1>
 			<form onSubmit={handleSubmit} className={cn("flex flex-col gap-2 items-center")}>
@@ -91,11 +102,11 @@ export default function Page() {
 					</div>
 					<div
 						className={cn("flex flex-col gap-2", {
-							hidden: !videoRef.current || videoRef.current.src == "",
+							hidden: videoSrc === "",
 						})}
 					>
 						<p>Clipped</p>
-						<video ref={videoRef} controls className="w-full max-w-[400px]"></video>
+						<video src={videoSrc} controls className="w-full max-w-[400px]"></video>
 					</div>
 				</div>
 				<div className="flex items-center gap-2">
@@ -122,9 +133,16 @@ export default function Page() {
 						/>
 					</div>
 				</div>
-				<Button className="w-fit" disabled={file === null}>
-					Clip
-				</Button>
+				<div className="flex items-center gap-5">
+					<Button className="w-fit" disabled={file === null}>
+						Clip
+					</Button>
+					{videoSrc ? (
+						<Button type="button" onClick={handleDownload} variant="secondary">
+							Download
+						</Button>
+					) : null}
+				</div>
 			</form>
 			{errorMsg ? <p className="text-red-500">{errorMsg}</p> : null}
 			<p ref={messageRef} className="text-sm"></p>
@@ -136,7 +154,7 @@ export default function Page() {
 					</a>
 				</p>
 				<code className="p-2 bg-background">
-					ffmpeg -i {"<input_file>"} -ss {"start_time"} -to {"end_time"} {"<input_name>"}
+					ffmpeg -i {"<input_file>"} -ss {"<start_time>"} -to {"<end_time>"} {"<input_name>"}
 				</code>
 				<p>ex.</p>
 				<code className="p-2 bg-background">
@@ -144,10 +162,24 @@ export default function Page() {
 				</code>
 			</div>
 		</main>
-	) : (
-		<main className="flex h-screen flex-col justify-center gap-2 items-center">
-			<Loader2 className="w-6 h-6 animate-spin" />
-			<p>Loading FFMPEG...</p>
-		</main>
 	);
 }
+
+// function useFFmpeg() {
+// 	const ffmpegRef = useRef(new FFmpeg());
+// 	const [loaded, setLoaded] = useState(false);
+
+// 	useEffect(() => {
+// 		const load = async () => {
+// 			const baseURL = "https://unpkg.com/@ffmpeg/core@0.12.10/dist/esm";
+// 			const ffmpeg = ffmpegRef.current;
+// 			await ffmpeg.load({
+// 				coreURL: await toBlobURL(`${baseURL}/ffmpeg-core.js`, "text/javascript"),
+// 				wasmURL: await toBlobURL(`${baseURL}/ffmpeg-core.wasm`, "application/wasm"),
+// 			});
+// 			setLoaded(true);
+// 		};
+// 		load().then(() => console.log("ffmpeg loaded"));
+// 	}, []);
+// 	return { ffmpegRef, loaded };
+// }
