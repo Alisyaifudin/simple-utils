@@ -2,11 +2,10 @@ import { useRef, useState } from "react";
 import { Input } from "~/components/ui/input";
 import { Button } from "~/components/ui/button";
 import { Label } from "~/components/ui/label";
-import { Loader2 } from "lucide-react";
 import { MetaFunction } from "@remix-run/react";
 import { cn } from "~/lib/utils";
 import { z } from "zod";
-import { useFFmpegContext } from "~/hooks/useFfmpegContext";
+import { useFFmpegContext } from "~/hooks/useFFmpegContext";
 
 export const meta: MetaFunction = () => {
 	return [{ title: "Simple utils | Clip Video" }];
