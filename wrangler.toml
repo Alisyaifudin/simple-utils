@@ -1,6 +1,7 @@
 #:schema node_modules/wrangler/config-schema.json
+compatibility_flags = [ "nodejs_compat" ]
 name = "simple-utils"
-compatibility_date = "2024-05-12"
+compatibility_date = "2024-09-23"
 pages_build_output_dir = "./build/client"
 
 # Automatically place your workloads in an optimal location to minimize latency.
