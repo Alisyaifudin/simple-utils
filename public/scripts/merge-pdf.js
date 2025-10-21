@@ -23,6 +23,26 @@ var __toESM = (mod, isNodeMode, target) => (target = mod != null ? __create(__ge
   isNodeMode || !mod || !mod.__esModule ? __defProp(target, "default", { value: mod, enumerable: true }) : target,
   mod
 ));
+var __async = (__this, __arguments, generator) => {
+  return new Promise((resolve, reject) => {
+    var fulfilled = (value) => {
+      try {
+        step(generator.next(value));
+      } catch (e) {
+        reject(e);
+      }
+    };
+    var rejected = (value) => {
+      try {
+        step(generator.throw(value));
+      } catch (e) {
+        reject(e);
+      }
+    };
+    var step = (x) => x.done ? resolve(x.value) : Promise.resolve(x.value).then(fulfilled, rejected);
+    step((generator = generator.apply(__this, __arguments)).next());
+  });
+};
 
 // node_modules/.pnpm/pako@1.0.11/node_modules/pako/lib/utils/common.js
 var require_common = __commonJS({
@@ -887,7 +907,7 @@ var require_deflate = __commonJS({
     var BS_FINISH_STARTED = 3;
     var BS_FINISH_DONE = 4;
     var OS_CODE = 3;
-    function err(strm, errorCode) {
+    function err2(strm, errorCode) {
       strm.msg = msg[errorCode];
       return errorCode;
     }
@@ -1460,7 +1480,7 @@ var require_deflate = __commonJS({
     function deflateResetKeep(strm) {
       var s;
       if (!strm || !strm.state) {
-        return err(strm, Z_STREAM_ERROR);
+        return err2(strm, Z_STREAM_ERROR);
       }
       strm.total_in = strm.total_out = 0;
       strm.data_type = Z_UNKNOWN;
@@ -1509,7 +1529,7 @@ var require_deflate = __commonJS({
         windowBits -= 16;
       }
       if (memLevel < 1 || memLevel > MAX_MEM_LEVEL || method !== Z_DEFLATED || windowBits < 8 || windowBits > 15 || level < 0 || level > 9 || strategy < 0 || strategy > Z_FIXED) {
-        return err(strm, Z_STREAM_ERROR);
+        return err2(strm, Z_STREAM_ERROR);
       }
       if (windowBits === 8) {
         windowBits = 9;
@@ -1546,11 +1566,11 @@ var require_deflate = __commonJS({
       var old_flush, s;
       var beg, val;
       if (!strm || !strm.state || flush > Z_BLOCK || flush < 0) {
-        return strm ? err(strm, Z_STREAM_ERROR) : Z_STREAM_ERROR;
+        return strm ? err2(strm, Z_STREAM_ERROR) : Z_STREAM_ERROR;
       }
       s = strm.state;
       if (!strm.output || !strm.input && strm.avail_in !== 0 || s.status === FINISH_STATE && flush !== Z_FINISH) {
-        return err(strm, strm.avail_out === 0 ? Z_BUF_ERROR : Z_STREAM_ERROR);
+        return err2(strm, strm.avail_out === 0 ? Z_BUF_ERROR : Z_STREAM_ERROR);
       }
       s.strm = strm;
       old_flush = s.last_flush;
@@ -1732,10 +1752,10 @@ var require_deflate = __commonJS({
           return Z_OK;
         }
       } else if (strm.avail_in === 0 && rank(flush) <= rank(old_flush) && flush !== Z_FINISH) {
-        return err(strm, Z_BUF_ERROR);
+        return err2(strm, Z_BUF_ERROR);
       }
       if (s.status === FINISH_STATE && strm.avail_in !== 0) {
-        return err(strm, Z_BUF_ERROR);
+        return err2(strm, Z_BUF_ERROR);
       }
       if (strm.avail_in !== 0 || s.lookahead !== 0 || flush !== Z_NO_FLUSH && s.status !== FINISH_STATE) {
         var bstate = s.strategy === Z_HUFFMAN_ONLY ? deflate_huff(s, flush) : s.strategy === Z_RLE ? deflate_rle(s, flush) : configuration_table[s.level].func(s, flush);
@@ -1801,10 +1821,10 @@ var require_deflate = __commonJS({
       }
       status = strm.state.status;
       if (status !== INIT_STATE && status !== EXTRA_STATE && status !== NAME_STATE && status !== COMMENT_STATE && status !== HCRC_STATE && status !== BUSY_STATE && status !== FINISH_STATE) {
-        return err(strm, Z_STREAM_ERROR);
+        return err2(strm, Z_STREAM_ERROR);
       }
       strm.state = null;
-      return status === BUSY_STATE ? err(strm, Z_DATA_ERROR) : Z_OK;
+      return status === BUSY_STATE ? err2(strm, Z_DATA_ERROR) : Z_OK;
     }
     function deflateSetDictionary(strm, dictionary) {
       var dictLength = dictionary.length;
@@ -4246,6 +4266,107 @@ var require_pako = __commonJS({
     module.exports = pako5;
   }
 });
+
+// client/merge-pdf/index.ts
+import { getElement as getElement2 } from "./share/element.js";
+import { state$ } from "./share/state$.js";
+
+// client/merge-pdf/read-pages.ts
+function handlePDFUpload(pdfInput2, files$2) {
+  return function() {
+    return __async(this, null, function* () {
+      const files = pdfInput2.files;
+      if (files === null || files.length === 0) {
+        return;
+      }
+      files$2.setter((old) => {
+        old.push(...files);
+        return old;
+      });
+      pdfInput2.files = null;
+      pdfInput2.value = "";
+    });
+  };
+}
+function attachFiles(files$2, ul2) {
+  files$2.addEffect((files) => {
+    ul2.innerHTML = "";
+    files.forEach((file, i) => {
+      const li = document.createElement("li");
+      li.classList.add("flex", "items-center", "gap-1");
+      if (i % 2 === 1) {
+        li.classList.add("bg-card/50");
+      }
+      const div = document.createElement("div");
+      div.classList.add("flex", "flex-1", "items-center", "gap-1");
+      if (i > 0) {
+        const up = createUp(files$2, i);
+        div.appendChild(up);
+      }
+      if (i < files.length - 1) {
+        const down = createDown(files$2, i);
+        div.appendChild(down);
+      }
+      const p = document.createElement("p");
+      const name = String(i + 1) + ". " + file.name;
+      p.textContent = name;
+      div.appendChild(p);
+      li.appendChild(div);
+      const deleteBtn = createDelete(files$2, i);
+      li.appendChild(deleteBtn);
+      ul2.appendChild(li);
+    });
+  });
+}
+function createUp(files$2, i) {
+  const btn = document.createElement("button");
+  btn.classList.add("p-0", "bg-card", "border-border", "border", "rounded-full", "h-7", "w-7");
+  btn.type = "button";
+  btn.innerHTML = `<svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-chevron-up-icon lucide-chevron-up"><path d="m18 15-6-6-6 6"/></svg>`;
+  btn.addEventListener("click", () => {
+    if (i === 0) return;
+    files$2.setter((old) => {
+      [old[i - 1], old[i]] = [old[i], old[i - 1]];
+      return old;
+    });
+  });
+  return btn;
+}
+function createDown(files$2, i) {
+  const btn = document.createElement("button");
+  btn.classList.add("p-0", "bg-card", "border-border", "border", "rounded-full", "h-7", "w-7");
+  btn.type = "button";
+  btn.innerHTML = `<svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-chevron-down-icon lucide-chevron-down"><path d="m6 9 6 6 6-6"/></svg>`;
+  btn.addEventListener("click", () => {
+    if (i === files$2.get.length - 1) return;
+    files$2.setter((old) => {
+      [old[i + 1], old[i]] = [old[i], old[i + 1]];
+      return old;
+    });
+  });
+  return btn;
+}
+function createDelete(files$2, i) {
+  const deleteBtn = document.createElement("button");
+  deleteBtn.classList.add(
+    "p-0",
+    "bg-destructive",
+    "border-border",
+    "border",
+    "rounded-full",
+    "h-7",
+    "w-7"
+  );
+  deleteBtn.type = "button";
+  deleteBtn.innerHTML = `<svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-x-icon lucide-x"><path d="M18 6 6 18"/><path d="m6 6 12 12"/></svg>`;
+  deleteBtn.addEventListener("click", () => {
+    files$2.setter((old) => {
+      old.splice(i, 1);
+      return old;
+    });
+  });
+  return deleteBtn;
+}
 
 // node_modules/.pnpm/tslib@1.14.1/node_modules/tslib/tslib.es6.js
 var extendStatics = function(d, b) {
@@ -8578,8 +8699,8 @@ var CustomFontSubsetEmbedder = (
           return parts.push(bytes);
         }).on("end", function() {
           return resolve(mergeUint8Arrays(parts));
-        }).on("error", function(err) {
-          return reject(err);
+        }).on("error", function(err2) {
+          return reject(err2);
         });
       });
     };
@@ -9934,8 +10055,8 @@ UPNG.quantize = function(abuf, ps) {
   }
   return { abuf: nimg.buffer, inds, plte: leafs };
 };
-UPNG.quantize.getKDtree = function(nimg, ps, err) {
-  if (err == null) err = 1e-4;
+UPNG.quantize.getKDtree = function(nimg, ps, err2) {
+  if (err2 == null) err2 = 1e-4;
   var nimg32 = new Uint32Array(nimg.buffer);
   var root = { i0: 0, i1: nimg.length, bst: null, est: null, tdst: 0, left: null, right: null };
   root.bst = UPNG.quantize.stats(nimg, root.i0, root.i1);
@@ -9947,7 +10068,7 @@ UPNG.quantize.getKDtree = function(nimg, ps, err) {
       maxL = leafs[i].est.L;
       mi = i;
     }
-    if (maxL < err) break;
+    if (maxL < err2) break;
     var node = leafs[mi];
     var s0 = UPNG.quantize.splitPixels(nimg, nimg32, node.i0, node.i1, node.est.e, node.est.eMq255);
     var s0wrong = node.i0 >= s0 || node.i1 <= s0;
@@ -18273,12 +18394,12 @@ var PDFDocument = (
       this.fontkit = fontkit;
     };
     PDFDocument2.prototype.getForm = function() {
-      var form = this.formCache.access();
-      if (form.hasXFA()) {
+      var form2 = this.formCache.access();
+      if (form2.hasXFA()) {
         console.warn("Removing XFA form data as pdf-lib does not support reading or writing XFA");
-        form.deleteXFA();
+        form2.deleteXFA();
       }
-      return form;
+      return form2;
     };
     PDFDocument2.prototype.getTitle = function() {
       var title = this.getInfoDict().lookup(PDFName_default.Title);
@@ -18756,7 +18877,7 @@ var PDFDocument = (
         options = {};
       }
       return __awaiter(this, void 0, void 0, function() {
-        var _a, useObjectStreams, _b, addDefaultPage, _c, objectsPerTick, _d, updateFieldAppearances, form, Writer;
+        var _a, useObjectStreams, _b, addDefaultPage, _c, objectsPerTick, _d, updateFieldAppearances, form2, Writer;
         return __generator(this, function(_e) {
           switch (_e.label) {
             case 0:
@@ -18768,9 +18889,9 @@ var PDFDocument = (
               if (addDefaultPage && this.getPageCount() === 0)
                 this.addPage();
               if (updateFieldAppearances) {
-                form = this.formCache.getValue();
-                if (form)
-                  form.updateFieldAppearances();
+                form2 = this.formCache.getValue();
+                if (form2)
+                  form2.updateFieldAppearances();
               }
               return [4, this.flush()];
             case 1:
@@ -19634,9 +19755,76 @@ var PDFButton = (
   })(PDFField_default)
 );
 var PDFButton_default = PDFButton;
-export {
-  PDFDocument_default as PDFDocument
-};
+
+// client/merge-pdf/submit.ts
+import { getElement } from "./share/element.js";
+import { err, ok } from "./share/utils.js";
+function handleSubmit(files$2) {
+  const p = getElement("#pdf-status");
+  return function(e) {
+    return __async(this, null, function* () {
+      e.preventDefault();
+      if (files$2.get.length === 0) return;
+      p.textContent = "Loading...";
+      const [errMsg, blob] = yield mergePdf(files$2.get);
+      if (errMsg !== null) {
+        p.textContent = errMsg;
+        return;
+      }
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement("a");
+      a.href = url;
+      a.download = `merge-${Date.now()}.pdf`;
+      a.click();
+      URL.revokeObjectURL(url);
+      p.textContent = "Successful";
+    });
+  };
+}
+function loadPdf(file) {
+  return __async(this, null, function* () {
+    const buffer = yield file.arrayBuffer();
+    const pdf = yield PDFDocument_default.load(buffer);
+    return pdf;
+  });
+}
+function mergePdf(files) {
+  return __async(this, null, function* () {
+    const loadPromises = files.map((file) => loadPdf(file));
+    const promiseRes = yield Promise.allSettled(loadPromises);
+    let failedFlag = false;
+    const errMsgs = [];
+    const pdfs = [];
+    promiseRes.forEach((r, i) => {
+      if (r.status === "rejected") {
+        failedFlag = true;
+        errMsgs.push([`Something went wrong at ${files[i].name}`, r.reason]);
+        return;
+      }
+      pdfs.push(r.value);
+    });
+    if (failedFlag) {
+      return err(JSON.stringify(errMsgs));
+    }
+    const newDoc = yield PDFDocument_default.create();
+    for (const pdf of pdfs) {
+      const copies = yield newDoc.copyPages(pdf, pdf.getPageIndices());
+      copies.forEach((page) => newDoc.addPage(page));
+    }
+    const pdfBytes = yield newDoc.save();
+    const blob = new Blob([pdfBytes], { type: "application/pdf" });
+    return ok(blob);
+  });
+}
+
+// client/merge-pdf/index.ts
+var pdfInput = getElement2("#pdf-input");
+var files$ = state$([]);
+var form = getElement2("form");
+var ul = getElement2("#file-list");
+pdfInput.addEventListener("change", handlePDFUpload(pdfInput, files$));
+attachFiles(files$, ul);
+form.addEventListener("submit", handleSubmit(files$));
 /*! Bundled license information:
 
 tslib/tslib.es6.js:
@@ -19655,4 +19843,4 @@ tslib/tslib.es6.js:
   PERFORMANCE OF THIS SOFTWARE.
   ***************************************************************************** *)
 */
-//# sourceMappingURL=pdfjs.js.map
+//# sourceMappingURL=merge-pdf.js.map

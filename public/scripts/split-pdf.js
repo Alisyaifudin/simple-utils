@@ -1,1 +1,215 @@
-var l=(o,n,t)=>new Promise((i,r)=>{var e=a=>{try{s(t.next(a))}catch(c){r(c)}},u=a=>{try{s(t.throw(a))}catch(c){r(c)}},s=a=>a.done?i(a.value):Promise.resolve(a.value).then(e,u);s((t=t.apply(o,n)).next())});import{elem$ as B}from"./share/elem$.js";import{getElement as D}from"./share/element.js";import{state$ as _}from"./share/state$.js";import{PDFDocument as y}from"./share/pdfjs.js";import{err as v,ok as I}from"./share/utils.js";var P=class{constructor(n){this.file=n;this._document=null;this.document()}document(){return l(this,null,function*(){if(this._document)return this._document;let n=yield this.file.arrayBuffer(),t=yield y.load(n);return this._document=t,t})}count(){return l(this,null,function*(){return(yield this.document()).getPageCount()})}split(n){return l(this,null,function*(){let[t,i]=n,r=yield this.document(),e=r.getPageCount();if(t<1||t>e||t>=i)return v(`Invalid page range: ${t}-${i}. PDF has ${e} pages.`);let u=yield y.create(),s=Array.from({length:i-t}).map((p,f)=>t-1+f);(yield u.copyPages(r,s)).forEach(p=>u.addPage(p));let c=yield u.save(),g=new Blob([c],{type:"application/pdf"});return I(g)})}};function L(o,n){return function(){return l(this,null,function*(){let t=o.files;if(t===null||t.length===0){n.set=null;return}let i=t[0],r=new P(i);n.set=r})}}function $(o,n){n.addEffect(t=>l(null,null,function*(){if(t===null)return;if(t.file.type!=="application/pdf"){o.set(r=>(r.textContent="Please select a valid PDF file.",r.className="text-red-500",r));return}try{o.set(e=>(e.textContent="Reading PDF...",e.className="",e));let r=yield t.count();o.set(e=>(e.textContent=`PDF has ${r} page${r!==1?"s":""}`,e.className="",e))}catch(r){console.error("PDF processing error:",r),o.set(e=>(e.textContent="Error reading PDF. File may be corrupted or encrypted.",e.className="text-red-500",e))}}))}import{getElement as N}from"./share/element.js";import{err as m,ok as R}from"./share/utils.js";function x(o,n){let t=[],i=o.split(",");for(let r of i){let e=Number(r);if(!isNaN(e)){if(!Number.isInteger(e))return m("Must be integer");if(e<1)return m("Must be greater than 0");if(e>n)return m("Cannot greater than the total page");t.push([e,e+1]);continue}let u=r.split("-");if(u.length!==2)return m("Invalid input");let[s,a]=u.map(Number);if(isNaN(s)||isNaN(a))return m("Not a number");if(a<=s)return m("Second number must be greater");if(s>n)return m("Cannot greater than the total page");if(!Number.isInteger(s)||!Number.isInteger(a))return m("Must be integer");let c=a>n?n+1:a;t.push([s,c])}return R(t)}function w(o,n){let t=N("#pdf-status");return function(i){return l(this,null,function*(){if(i.preventDefault(),n.get===null)return;let e=new FormData(o).get("pages"),u=yield n.get.count();if(!U(e))return;let[s,a]=x(e,u);if(s!==null){t.textContent=s,console.log("hellooo");return}t.textContent="";let c=N("#results");c.innerHTML="";let g=n.get.file.name.split("."),p=g.slice(0,g.length-1);for(let[f,b]of a){let[d,h]=k(c);d.textContent="Loading...",n.get.split([f,b]).then(([F,H])=>{if(F!==null){d.textContent=F;return}let S=URL.createObjectURL(H);h.href=S;let T=b===f+1?`${p}-${f}.pdf`:`${p}-${f}-${b-1}.pdf`;h.download=h.textContent=T,d.innerHTML="",d.appendChild(h)})}})}}function U(o){return typeof o=="string"}function k(o){let n=document.createElement("li"),t=document.createElement("a");return o.appendChild(n),[n,t]}var C=D("#pdf-input"),E=_(null),j=B(D("#pdf-page")),M=D("form");C.addEventListener("change",L(C,E));$(j,E);M.addEventListener("submit",w(M,E));
+var __async = (__this, __arguments, generator) => {
+  return new Promise((resolve, reject) => {
+    var fulfilled = (value) => {
+      try {
+        step(generator.next(value));
+      } catch (e) {
+        reject(e);
+      }
+    };
+    var rejected = (value) => {
+      try {
+        step(generator.throw(value));
+      } catch (e) {
+        reject(e);
+      }
+    };
+    var step = (x) => x.done ? resolve(x.value) : Promise.resolve(x.value).then(fulfilled, rejected);
+    step((generator = generator.apply(__this, __arguments)).next());
+  });
+};
+
+// client/split-pdf/index.ts
+import { elem$ } from "./share/elem$.js";
+import { getElement as getElement2 } from "./share/element.js";
+import { state$ } from "./share/state$.js";
+
+// client/split-pdf/pdf.ts
+import { PDFDocument } from "./share/pdfjs.js";
+import { err, ok } from "./share/utils.js";
+var PDF = class {
+  constructor(file2) {
+    this.file = file2;
+    this._document = null;
+    this.document();
+  }
+  document() {
+    return __async(this, null, function* () {
+      if (this._document) return this._document;
+      const arrayBuffer = yield this.file.arrayBuffer();
+      const doc = yield PDFDocument.load(arrayBuffer);
+      this._document = doc;
+      return doc;
+    });
+  }
+  count() {
+    return __async(this, null, function* () {
+      const doc = yield this.document();
+      return doc.getPageCount();
+    });
+  }
+  split(pages) {
+    return __async(this, null, function* () {
+      const [from, to] = pages;
+      const original = yield this.document();
+      const total = original.getPageCount();
+      if (from < 1 || from > total || from >= to) {
+        return err(`Invalid page range: ${from}-${to}. PDF has ${total} pages.`);
+      }
+      const newDoc = yield PDFDocument.create();
+      const pageIndices = Array.from({ length: to - from }).map((_, i) => from - 1 + i);
+      const copiedPages = yield newDoc.copyPages(original, pageIndices);
+      copiedPages.forEach((page) => newDoc.addPage(page));
+      const pdfBytes = yield newDoc.save();
+      const blob = new Blob([pdfBytes], { type: "application/pdf" });
+      return ok(blob);
+    });
+  }
+};
+
+// client/split-pdf/read-pages.ts
+function handlePDFUpload(pdfInput2, pdf) {
+  return function() {
+    return __async(this, null, function* () {
+      const files = pdfInput2.files;
+      if (files === null || files.length === 0) {
+        pdf.set = null;
+        return;
+      }
+      const file2 = files[0];
+      const p = new PDF(file2);
+      pdf.set = p;
+    });
+  };
+}
+function attachPageNumber(pageNumber2, pdf) {
+  pdf.addEffect((pdf2) => __async(null, null, function* () {
+    if (pdf2 === null) return;
+    const file2 = pdf2.file;
+    if (file2.type !== "application/pdf") {
+      pageNumber2.set((old) => {
+        old.textContent = "Please select a valid PDF file.";
+        old.className = "text-red-500";
+        return old;
+      });
+      return;
+    }
+    try {
+      pageNumber2.set((old) => {
+        old.textContent = "Reading PDF...";
+        old.className = "";
+        return old;
+      });
+      const numPages = yield pdf2.count();
+      pageNumber2.set((old) => {
+        old.textContent = `PDF has ${numPages} page${numPages !== 1 ? "s" : ""}`;
+        old.className = "";
+        return old;
+      });
+    } catch (error) {
+      console.error("PDF processing error:", error);
+      pageNumber2.set((old) => {
+        old.textContent = "Error reading PDF. File may be corrupted or encrypted.";
+        old.className = "text-red-500";
+        return old;
+      });
+    }
+  }));
+}
+
+// client/split-pdf/submit.ts
+import { getElement } from "./share/element.js";
+
+// client/split-pdf/parse-pages.ts
+import { err as err2, ok as ok2 } from "./share/utils.js";
+function parsePages(value, total) {
+  const pages = [];
+  const chunks = value.split(",");
+  for (const chunk of chunks) {
+    const num = Number(chunk);
+    if (!isNaN(num)) {
+      if (!Number.isInteger(num)) return err2("Must be integer");
+      if (num < 1) return err2("Must be greater than 0");
+      if (num > total) return err2("Cannot greater than the total page");
+      pages.push([num, num + 1]);
+      continue;
+    }
+    const ranges = chunk.split("-");
+    if (ranges.length !== 2) {
+      return err2("Invalid input");
+    }
+    const [n1, n2] = ranges.map(Number);
+    if (isNaN(n1) || isNaN(n2)) {
+      return err2("Not a number");
+    }
+    if (n2 <= n1) {
+      return err2("Second number must be greater");
+    }
+    if (n1 > total) return err2("Cannot greater than the total page");
+    if (!Number.isInteger(n1) || !Number.isInteger(n2)) return err2("Must be integer");
+    const upper = n2 > total ? total + 1 : n2;
+    pages.push([n1, upper]);
+  }
+  return ok2(pages);
+}
+
+// client/split-pdf/submit.ts
+function handleSubmit(form2, pdf) {
+  const p = getElement("#pdf-status");
+  return function(e) {
+    return __async(this, null, function* () {
+      e.preventDefault();
+      if (pdf.get === null) return;
+      const formdata = new FormData(form2);
+      const pagesStr = formdata.get("pages");
+      const total = yield pdf.get.count();
+      if (!isString(pagesStr)) return;
+      const [errMsg, pages] = parsePages(pagesStr, total);
+      if (errMsg !== null) {
+        p.textContent = errMsg;
+        console.log("hellooo");
+        return;
+      }
+      p.textContent = "";
+      const ul = getElement("#results");
+      ul.innerHTML = "";
+      const filenames = pdf.get.file.name.split(".");
+      const filename = filenames.slice(0, filenames.length - 1);
+      for (const [from, to] of pages) {
+        const [li, a] = createLi(ul);
+        li.textContent = "Loading...";
+        pdf.get.split([from, to]).then(([errMsg2, blob]) => {
+          if (errMsg2 !== null) {
+            li.textContent = errMsg2;
+            return;
+          }
+          const url = URL.createObjectURL(blob);
+          a.href = url;
+          const name = to === from + 1 ? `${filename}-${from}.pdf` : `${filename}-${from}-${to - 1}.pdf`;
+          a.download = a.textContent = name;
+          li.innerHTML = "";
+          li.appendChild(a);
+        });
+      }
+    });
+  };
+}
+function isString(v) {
+  return typeof v === "string";
+}
+function createLi(ul) {
+  const li = document.createElement("li");
+  const a = document.createElement("a");
+  ul.appendChild(li);
+  return [li, a];
+}
+
+// client/split-pdf/index.ts
+var pdfInput = getElement2("#pdf-input");
+var file = state$(null);
+var pageNumber = elem$(getElement2("#pdf-page"));
+var form = getElement2("form");
+pdfInput.addEventListener("change", handlePDFUpload(pdfInput, file));
+attachPageNumber(pageNumber, file);
+form.addEventListener("submit", handleSubmit(form, file));
+//# sourceMappingURL=split-pdf.js.map
