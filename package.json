@@ -1,29 +1,25 @@
 {
-	"name": "pro",
-	"version": "1.1.0",
+	"name": "simple-utils",
+	"version": "1.2.0",
 	"type": "module",
 	"private": true,
 	"scripts": {
-		"deploy": "wrangler deploy",
-		"dev": "wrangler dev",
 		"build:watch": "nodemon --watch src --ext ts,js,tsx --exec \"node build.js --watch\"",
 		"build": "node build.js --prod",
 		"build:dev": "node build.js",
-		"start": "wrangler dev",
-		"cf-typegen": "wrangler types",
-		"tw": "npx @tailwindcss/cli -i ./server/input.css -o ./public/global.css --watch"
+		"start": "npx http-server ./public",
+		"tw": "npx @tailwindcss/cli -i ./input.css -o ./public/global.css --watch"
 	},
 	"devDependencies": {
 		"@types/node": "^24.8.1",
 		"esbuild": "^0.25.11",
 		"filesize": "^11.0.13",
 		"glob": "^11.0.3",
-		"nodemon": "^3.1.10",
-		"wrangler": "^3.78.5"
+		"http-server": "^14.1.1",
+		"nodemon": "^3.1.10"
 	},
 	"dependencies": {
 		"@tailwindcss/cli": "^4.1.14",
-		"hono": "^4.10.1",
 		"pdf-lib": "^1.17.1",
 		"tailwindcss": "^4.1.14"
 	}

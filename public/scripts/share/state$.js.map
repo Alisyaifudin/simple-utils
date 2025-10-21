@@ -1,6 +1,6 @@
 {
   "version": 3,
-  "sources": ["../../../client/share/state$.ts"],
+  "sources": ["../../../scripts/share/state$.ts"],
   "sourcesContent": ["type Effect<T> = (state: T) => void;\n\nexport type State$<T> = {\n\treadonly get: T;\n\tset: T;\n\tsetter: (func: (old: T) => T) => void;\n\taddEffect(effect: Effect<T>, run?: boolean): void;\n};\n\nexport function state$<T>(state: T): State$<T> {\n\tconst effects: Effect<T>[] = [];\n\treturn {\n\t\tget get() {\n\t\t\treturn state;\n\t\t},\n\t\tset set(v: T) {\n\t\t\tstate = v;\n\t\t\teffects.forEach((effect) => effect(v));\n\t\t},\n\t\tsetter(func) {\n\t\t\tstate = func(state);\n\t\t\teffects.forEach((effect) => effect(state));\n\t\t},\n\t\taddEffect(effect: Effect<T>, run = false) {\n\t\t\teffects.push(effect);\n\t\t\tif (run) effect(state);\n\t\t},\n\t};\n}\n"],
   "mappings": ";AASO,SAAS,OAAU,OAAqB;AAC9C,QAAM,UAAuB,CAAC;AAC9B,SAAO;AAAA,IACN,IAAI,MAAM;AACT,aAAO;AAAA,IACR;AAAA,IACA,IAAI,IAAI,GAAM;AACb,cAAQ;AACR,cAAQ,QAAQ,CAAC,WAAW,OAAO,CAAC,CAAC;AAAA,IACtC;AAAA,IACA,OAAO,MAAM;AACZ,cAAQ,KAAK,KAAK;AAClB,cAAQ,QAAQ,CAAC,WAAW,OAAO,KAAK,CAAC;AAAA,IAC1C;AAAA,IACA,UAAU,QAAmB,MAAM,OAAO;AACzC,cAAQ,KAAK,MAAM;AACnB,UAAI,IAAK,QAAO,KAAK;AAAA,IACtB;AAAA,EACD;AACD;",
   "names": []

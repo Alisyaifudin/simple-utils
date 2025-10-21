@@ -1,6 +1,6 @@
 {
   "version": 3,
-  "sources": ["../../../client/share/utils.ts"],
+  "sources": ["../../../scripts/share/utils.ts"],
   "sourcesContent": ["type Ok<T> = [null, T];\ntype Err<E> = [E, null];\nexport type Result<E, T> = Err<E> | Ok<T>;\n\nexport function err<E>(value: E): Err<E> {\n\treturn [value, null];\n}\n\nexport function ok<T>(value: T): Ok<T> {\n\treturn [null, value];\n}\n"],
   "mappings": ";AAIO,SAAS,IAAO,OAAkB;AACxC,SAAO,CAAC,OAAO,IAAI;AACpB;AAEO,SAAS,GAAM,OAAiB;AACtC,SAAO,CAAC,MAAM,KAAK;AACpB;",
   "names": []

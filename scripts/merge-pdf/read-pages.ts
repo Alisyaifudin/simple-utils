@@ -1,4 +1,3 @@
-import { Elem$ } from "../share/elem$.js";
 import { State$ } from "../share/state$.js";
 
 export function handlePDFUpload(pdfInput: HTMLInputElement, files$: State$<File[]>) {

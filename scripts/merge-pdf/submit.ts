@@ -1,5 +1,5 @@
-import { PDFDocument } from "pdf-lib";
 import { getElement } from "../share/element.js";
+import { PDFDocument } from "../share/pdfjs.js";
 import { State$ } from "../share/state$.js";
 import { err, ok, Result } from "../share/utils.js";
 

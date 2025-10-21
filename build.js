@@ -56,7 +56,7 @@ const getOptions = (bundle, prod) => ({
 });
 
 export async function buildScripts(prod, watch = false) {
-	const srcDir = join(process.cwd(), "client");
+	const srcDir = join(process.cwd(), "scripts");
 	const outDir = join(process.cwd(), "public/scripts");
 	const contexts = [];
 

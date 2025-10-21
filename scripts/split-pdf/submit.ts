@@ -15,7 +15,6 @@ export function handleSubmit(form: HTMLFormElement, pdf: State$<PDF | null>) {
 		const [errMsg, pages] = parsePages(pagesStr, total);
 		if (errMsg !== null) {
 			p.textContent = errMsg;
-			console.log("hellooo");
 			return;
 		}
 		p.textContent = "";
