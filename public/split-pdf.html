@@ -1,0 +1,44 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <link href="/global.css" rel="stylesheet">
+  <script type="module" src="/scripts/split-pdf.js"></script>
+  <title>Split PDF</title>
+</head>
+
+<body>
+  <main class="p-4 max-w-4xl mx-auto flex flex-col gap-4">
+    <a href="/" class="underline">Back</a>
+    <h1 class="text-2xl font-bold mb-4">PDF Splitter</h1>
+    <form class="space-y-4">
+      <div class="flex flex-col gap-1">
+        <label>
+          Select PDF File:
+          <input type="file" id="pdf-input" accept=".pdf" name="file" class="block w-full mt-1 border rounded-md p-2" />
+        </label>
+        <p id="pdf-page"></p>
+      </div>
+
+      <div class="flex gap-2 flex-col">
+        <label class="block" for="pdf-pages">Select pages</Label>
+        <input name="pages" class="block w-full border rounded-md p-2" />
+      </div>
+      <p>
+        Comma seperated. Can be range like 1-5 (one to five, inclusive.)
+      </p>
+      <button type="submit" class="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded">
+        Split PDF
+      </button>
+    </form>
+    <div class="p-4 border rounded-md flex items-center gap-2">
+      <p id="pdf-status"></p>
+      <ul id="results"></ul>
+      <!-- <loader class="animate-spin" /> -->
+    </div>
+  </main>
+</body>
+
+</html>

@@ -1,0 +1,7 @@
+{
+  "version": 3,
+  "sources": ["../../../client/share/element.ts"],
+  "sourcesContent": ["export function getElement<E extends Element = Element>(\r\n\tselectors: string,\r\n\troot: Element | Document = document\r\n): E {\r\n\tconst el = root.querySelector<E>(selectors);\r\n\tif (el === null) throw new Error(\"Element not found: \" + selectors);\r\n\treturn el;\r\n}\r\n"],
+  "mappings": ";AAAO,SAAS,WACf,WACA,OAA2B,UACvB;AACJ,QAAM,KAAK,KAAK,cAAiB,SAAS;AAC1C,MAAI,OAAO,KAAM,OAAM,IAAI,MAAM,wBAAwB,SAAS;AAClE,SAAO;AACR;",
+  "names": []
+}

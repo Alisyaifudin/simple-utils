@@ -1,55 +1,30 @@
 {
-  "name": "simple-utils",
-  "private": true,
-  "sideEffects": false,
-  "type": "module",
-  "version": "3.1.1",
-  "scripts": {
-    "build": "remix vite:build",
-    "deploy": "pnpm run build && wrangler pages deploy",
-    "dev": "remix vite:dev",
-    "start": "wrangler pages dev ./build/client",
-    "typecheck": "tsc",
-    "typegen": "wrangler types",
-    "preview": "pnpm run build && wrangler pages dev",
-    "cf-typegen": "wrangler types"
-  },
-  "dependencies": {
-    "@ffmpeg/ffmpeg": "^0.12.15",
-    "@ffmpeg/util": "^0.12.2",
-    "@radix-ui/react-label": "^2.1.1",
-    "@radix-ui/react-scroll-area": "^1.2.2",
-    "@radix-ui/react-slot": "^1.1.1",
-    "@remix-run/cloudflare": "^2.15.1",
-    "@remix-run/cloudflare-pages": "^2.15.1",
-    "@remix-run/react": "^2.15.1",
-    "class-variance-authority": "^0.7.1",
-    "clsx": "^2.1.1",
-    "isbot": "^4.1.0",
-    "lucide-react": "^0.469.0",
-    "react": "^18.2.0",
-    "react-dom": "^18.2.0",
-    "tailwind-merge": "^2.6.0",
-    "tailwindcss-animate": "^1.0.7",
-    "vite-plugin-node-polyfills": "^0.22.0",
-    "vite-plugin-static-copy": "^2.2.0",
-    "zod": "^3.24.1"
-  },
-  "devDependencies": {
-    "@cloudflare/workers-types": "^4.20241230.0",
-    "@remix-run/dev": "^2.15.1",
-    "@remix-run/route-config": "^2.15.2",
-    "@types/react": "^18.2.20",
-    "@types/react-dom": "^18.2.7",
-    "autoprefixer": "^10.4.19",
-    "postcss": "^8.4.38",
-    "tailwindcss": "^3.4.4",
-    "typescript": "^5.1.6",
-    "vite": "^5.1.0",
-    "vite-tsconfig-paths": "^4.2.1",
-    "wrangler": "^3.101.0"
-  },
-  "engines": {
-    "node": ">=20.0.0"
-  }
+	"name": "pro",
+	"version": "1.0.0",
+	"type": "module",
+	"private": true,
+	"scripts": {
+		"deploy": "wrangler deploy",
+		"dev": "wrangler dev",
+		"build:watch": "nodemon --watch src --ext ts,js,tsx --exec \"node build.js --watch\"",
+		"build": "node build.js --prod",
+		"build:dev": "node build.js",
+		"start": "wrangler dev",
+		"cf-typegen": "wrangler types",
+		"tw": "npx @tailwindcss/cli -i ./server/input.css -o ./public/global.css --watch"
+	},
+	"devDependencies": {
+		"@types/node": "^24.8.1",
+		"esbuild": "^0.25.11",
+		"filesize": "^11.0.13",
+		"glob": "^11.0.3",
+		"nodemon": "^3.1.10",
+		"wrangler": "^3.78.5"
+	},
+	"dependencies": {
+		"@tailwindcss/cli": "^4.1.14",
+		"hono": "^4.10.1",
+		"pdf-lib": "^1.17.1",
+		"tailwindcss": "^4.1.14"
+	}
 }
